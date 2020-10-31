@@ -97,6 +97,10 @@ tNFC_chipType capability::getChipType(uint8_t* msg, uint16_t msg_len) {
           chipType = pn66T;
           break;
 
+        case 0x01:
+          chipType = pn547C2;
+          break;
+
         default:
           chipType = pn80T;
       }
