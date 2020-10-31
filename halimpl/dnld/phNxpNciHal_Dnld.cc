@@ -181,6 +181,16 @@ static NFCSTATUS (*phNxpNciHal_dwnld_seqhandler[])(void* pContext,
     phNxpNciHal_fw_dnld_get_sessn_state, phNxpNciHal_fw_dnld_get_version,
     phNxpNciHal_fw_dnld_log, phNxpNciHal_fw_dnld_chk_integrity, NULL};
 
+/* Array of pointers to start pn547 fw download seq */
+static NFCSTATUS (*phNxpNciHal_dwnld_seqhandler_pn547[])(void* pContext,
+                                                   NFCSTATUS status,
+                                                   void* pInfo) = {
+    phNxpNciHal_fw_dnld_normal, phNxpNciHal_fw_dnld_normal,
+    phNxpNciHal_fw_dnld_get_sessn_state, phNxpNciHal_fw_dnld_get_version,
+    phNxpNciHal_fw_dnld_log_read, phNxpNciHal_fw_dnld_write,
+    phNxpNciHal_fw_dnld_get_sessn_state, phNxpNciHal_fw_dnld_get_version,
+    phNxpNciHal_fw_dnld_log, phNxpNciHal_fw_dnld_chk_integrity, NULL};
+
 /* Array of pointers to start dummy fw download seq */
 static NFCSTATUS (*phNxpNciHal_dummy_rec_dwnld_seqhandler[])(void* pContext,
                                                              NFCSTATUS status,
@@ -1587,7 +1597,10 @@ static NFCSTATUS phNxpNciHal_fw_dnld_complete(void* pContext, NFCSTATUS status,
     (gphNxpNciHal_fw_IoctlCtx.bSendNciCmd) = false;
 
     /* Perform the download sequence ... after successful recover attempt */
-    wStatus = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler);
+    if (nfcFL.chipType != pn557)
+      wStatus = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler);
+    else
+      wStatus = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler_pn547);
 
     status = phNxpNciHal_fw_dnld_complete(pContext, wStatus, &pInfo);
     if (NFCSTATUS_SUCCESS == status) {
@@ -1698,11 +1711,14 @@ NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal) {
   /* Get firmware version */
   if (NFCSTATUS_SUCCESS == phDnldNfc_InitImgInfo()) {
     NXPLOG_FWDNLD_D("phDnldNfc_InitImgInfo:SUCCESS");
-    if (gRecFWDwnld == true) {
+    if ((gRecFWDwnld == true) && (nfcFL.chipType != pn547C2)) {
       status =
           phNxpNciHal_fw_seq_handler(phNxpNciHal_dummy_rec_dwnld_seqhandler);
     } else {
-      status = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler);
+      if (nfcFL.chipType != pn557)
+        status = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler);
+      else
+        status = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler_pn547);
     }
   } else {
     NXPLOG_FWDNLD_E("phDnldNfc_InitImgInfo: FAILED");

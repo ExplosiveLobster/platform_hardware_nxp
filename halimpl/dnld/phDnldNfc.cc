@@ -751,7 +751,7 @@ NFCSTATUS phDnldNfc_InitImgInfo(void) {
     wStatus = phDnldNfc_LoadBinFW(&pImageInfo, &ImageInfoLen);
   } else if(fwType == FW_FORMAT_SO) {
     gpphDnldContext->FwFormat = FW_FORMAT_SO;
-    if (gRecFWDwnld == true) {
+    if ((gRecFWDwnld == true) && (nfcFL.chipType != pn547C2)) {
       wStatus = phDnldNfc_LoadRecoveryFW(&pImageInfo, &ImageInfoLen);
     } else {
       wStatus = phDnldNfc_LoadFW(&pImageInfo, &ImageInfoLen);
@@ -827,7 +827,7 @@ NFCSTATUS phDnldNfc_LoadRecInfo(void) {
   /* if memory is not allocated then allocate memory for donwload context
    * structure */
   phDnldNfc_SetHwDevHandle();
-  if (gRecFWDwnld == true)
+  if ((gRecFWDwnld == true) && (nfcFL.chipType != pn547C2))
     wStatus = phDnldNfc_LoadRecoveryFW(&pImageInfo, &ImageInfoLen);
   else
     wStatus = phDnldNfc_LoadFW(&pImageInfo, &ImageInfoLen);
@@ -883,7 +883,7 @@ NFCSTATUS phDnldNfc_LoadPKInfo(void) {
    * structure */
   phDnldNfc_SetHwDevHandle();
   /* load the PKU image library */
-  if (gRecFWDwnld == true)
+  if ((gRecFWDwnld == true) && (nfcFL.chipType != pn547C2))
     wStatus = phDnldNfc_LoadRecoveryFW(&pImageInfo, &ImageInfoLen);
   else
     wStatus = phDnldNfc_LoadFW(&pImageInfo, &ImageInfoLen);
